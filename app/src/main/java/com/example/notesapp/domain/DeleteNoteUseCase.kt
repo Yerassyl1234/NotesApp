@@ -1,7 +1,10 @@
 package com.example.notesapp.domain
 
 
-class DeleteNoteUseCase {
-    operator fun invoke(noteId: Int){
-            TODO()
-}}
+class DeleteNoteUseCase(
+    private val repository: NotesRepository
+) {
+    operator fun invoke(noteId: Int) {
+        repository.deleteNote(noteId=noteId)
+    }
+}
