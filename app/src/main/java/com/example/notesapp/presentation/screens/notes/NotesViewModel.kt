@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.material3.SearchBar
 import androidx.constraintlayout.helper.widget.Flow
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.notesapp.data.NotesRepositoryImpl
 import com.example.notesapp.domain.AddNoteUseCase
 import com.example.notesapp.domain.DeleteNoteUseCase
@@ -17,6 +18,7 @@ import com.example.notesapp.domain.SearchNotesUseCase
 import com.example.notesapp.domain.SwitchPinnedStatusUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class NotesViewModel : ViewModel() {
     private val repository: NotesRepositoryImpl = NotesRepositoryImpl
@@ -41,7 +44,7 @@ class NotesViewModel : ViewModel() {
     private val _state: MutableStateFlow<NotesScreenState> = MutableStateFlow(NotesScreenState())
     val state: StateFlow<NotesScreenState> = _state.asStateFlow()
 
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+
 
 
     init {
@@ -62,15 +65,17 @@ class NotesViewModel : ViewModel() {
                 val otherNotes = notes.filter { !it.isPinned }
                 _state.update { it.copy(pinnedNotes = pinnedNotes, otherNotes = otherNotes) }
             }
-            .launchIn(scope)
+            .launchIn(viewModelScope)
     }
     private fun addSomeNotes(){
+        viewModelScope.launch {
         repeat(50){
             addNoteUseCase(title="Title №$it", content="Content №$it")
-        }
+        }}
     }
 
     fun processCommand(command: NotesCommand) {
+        viewModelScope.launch {
         when (command) {
             is NotesCommand.DeleteNote -> {
                 deleteNoteUseCase(command.noteId)
@@ -83,15 +88,16 @@ class NotesViewModel : ViewModel() {
             }
 
             is NotesCommand.InputSearchQuery -> {
-
+                query.value=command.query
             }
 
             is NotesCommand.SwitchPinnedStatus -> {
                 switchPinnedStatusUseCase(command.noteId)
             }
-        }
+        }}
     }
 }
+
 
 sealed interface NotesCommand {
     data class InputSearchQuery(val query: String) : NotesCommand
