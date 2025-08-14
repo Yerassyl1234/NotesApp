@@ -1,8 +1,6 @@
 package com.example.notesapp.domain
 
-import android.adservices.adid.AdId
-
-class getNoteUseCase(
+class GetNoteUseCase(
     private val repository: NotesRepository
 ) {
     operator fun invoke(noteId: Int) {
