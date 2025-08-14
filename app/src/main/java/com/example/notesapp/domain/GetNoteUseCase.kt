@@ -3,7 +3,7 @@ package com.example.notesapp.domain
 class GetNoteUseCase(
     private val repository: NotesRepository
 ) {
-    operator fun invoke(noteId: Int) {
+    operator fun invoke(noteId: Int):Note {
         return repository.getNote(noteId)
     }
 }
