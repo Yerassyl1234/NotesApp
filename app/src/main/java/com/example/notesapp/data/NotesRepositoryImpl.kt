@@ -1,16 +1,14 @@
 package com.example.notesapp.data
 
+import android.content.Context
 import com.example.notesapp.domain.Note
 import com.example.notesapp.domain.NotesRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 
-object NotesRepositoryImpl : NotesRepository {
-
-    private val notesListFlow = MutableStateFlow<List<Note>>(listOf())
+class NotesRepositoryImpl private constructor(context: Context) : NotesRepository {
+    private val notesDatabase = NotesDatabase.getInstance(context)
+    private val notesDao = notesDatabase.notesDao()
 
     override suspend fun addNote(
         title: String,
@@ -18,65 +16,44 @@ object NotesRepositoryImpl : NotesRepository {
         isPinned: Boolean,
         updatedAt: Long
     ) {
-        notesListFlow.update { oldList ->
-            val note = Note(
-                id = oldList.size,
-                title = title,
-                content = content,
-                updatedAt = updatedAt,
-                isPinned = isPinned
-            )
-            oldList + note
-        }
+        val noteDbModel= NoteDbModel(0,title,content,updatedAt,isPinned)
+        notesDao.addNote(noteDbModel)
     }
 
     override suspend fun deleteNote(noteId: Int) {
-        notesListFlow.update { oldList ->
-            oldList.toMutableList().apply {
-                removeIf {
-                    it.id == noteId
-                }
-            }
-
-        }
+        notesDao.deleteNote(noteId)
     }
 
     override suspend fun editNote(note: Note) {
-        notesListFlow.update { oldList ->
-            oldList.map {
-                if (it.id == note.id) {
-                    note
-                } else {
-                    it
-                }
-            }
-        }
+        notesDao.addNote(note.toDbModel())
     }
 
     override fun getAllNotes(): Flow<List<Note>> {
-        return notesListFlow.asStateFlow()
+        return notesDao.getAllNotes().map { it.toEntities() }
     }
 
     override suspend fun getNote(noteId: Int): Note {
-        return notesListFlow.value.first { it.id == noteId }
+        return notesDao.getNote(noteId).toEntity()
     }
 
     override fun searchNote(query: String): Flow<List<Note>> {
-        return notesListFlow.map { currentList ->
-            currentList.filter {
-                it.title.contains(query) || it.content.contains(query)
-            }
-        }
+        return notesDao.searchNotes(query).map{it.toEntities()}
     }
 
     override suspend fun switchPinnedStatus(noteId: Int) {
-        notesListFlow.update { oldList ->
-            oldList.map {
-                if (it.id == noteId) {
-                    it.copy(isPinned = !it.isPinned)
-                } else {
-                    it
-                }
+        notesDao.switchPinnedStatus(noteId)
+    }
+
+    companion object{
+        private val LOCK=Any()
+        private var instance: NotesRepositoryImpl?=null
+
+        fun getInstance(context: Context): NotesRepositoryImpl{
+            instance?.let{ return it }
+            synchronized(LOCK){
+                instance?.let { return it }
+
+                return NotesRepositoryImpl(context).also { instance=it }
             }
         }
     }

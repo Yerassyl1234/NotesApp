@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.notesapp.presentation.screens.creation.CreateNoteScreen
+import com.example.notesapp.presentation.screens.editing.EditNoteScreen
+import com.example.notesapp.presentation.screens.navigation.NavGraph
 import com.example.notesapp.presentation.screens.notes.NotesScreen
 import com.example.notesapp.presentation.ui.theme.NotesAppTheme
 
@@ -20,7 +22,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            CreateNoteScreen()
+             NotesAppTheme {
+                 NavGraph()
+             }
         }
     }
 }

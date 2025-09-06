@@ -2,6 +2,7 @@
 
 package com.example.notesapp.presentation.screens.notes
 
+import android.content.Context
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab.AlbumsTab.value
 import androidx.compose.material3.SearchBar
 import androidx.constraintlayout.helper.widget.Flow
@@ -29,8 +30,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class NotesViewModel : ViewModel() {
-    private val repository: NotesRepositoryImpl = NotesRepositoryImpl
+class NotesViewModel(context: Context) : ViewModel() {
+    private val repository = NotesRepositoryImpl.getInstance(context)
 
     private val getAllNotesUseCase = GetAllNotesUseCase(repository)
     private val searchNotesUseCase = SearchNotesUseCase(repository)
@@ -83,8 +84,3 @@ sealed interface NotesCommand {
 }
 
 
-data class NotesScreenState(
-    val query: String = "",
-    val pinnedNotes: List<Note> = listOf(),
-    val otherNotes: List<Note> = listOf()
-)
