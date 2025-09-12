@@ -15,7 +15,7 @@ interface NotesDao {
     @Query("SELECT * FROM notes WHERE id== :noteId")
     suspend fun getNote(noteId: Int): NoteDbModel
 
-    @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%' OR title LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
     fun searchNotes(query:String):Flow<List<NoteDbModel>>
 
     @Query("DELETE FROM notes WHERE id== :noteId")

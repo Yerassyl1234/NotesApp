@@ -5,15 +5,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.data.NotesRepositoryImpl
 import com.example.notesapp.domain.AddNoteUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+@HiltViewModel
+class CreateNoteViewModel @Inject constructor(
+        private val addNoteUseCase: AddNoteUseCase
+) : ViewModel() {
 
-class CreateNoteViewModel(context: Context) : ViewModel() {
-
-    private val repository = NotesRepositoryImpl.getInstance(context)
-    private val addNoteUseCase = AddNoteUseCase(repository)
 
     private val _state = MutableStateFlow<CreateNoteState>(CreateNoteState.Creation())
     val state = _state.asStateFlow()
@@ -44,7 +46,7 @@ class CreateNoteViewModel(context: Context) : ViewModel() {
                     if(previousState is CreateNoteState.Creation){
                         previousState.copy(
                             title = command.title,
-                            isSaveEnabled = command.title.isNotBlank() && previousState.title.isNotBlank()
+                            isSaveEnabled = command.title.isNotBlank() && previousState.content.isNotBlank()
 
                         )
                     }else{

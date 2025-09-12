@@ -10,17 +10,24 @@ import com.example.notesapp.domain.DeleteNoteUseCase
 import com.example.notesapp.domain.EditNoteUseCase
 import com.example.notesapp.domain.GetNoteUseCase
 import com.example.notesapp.domain.Note
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+@HiltViewModel(assistedFactory = EditNoteViewModel.Factory::class)
+class EditNoteViewModel @AssistedInject constructor(
+    private val editNoteUseCase : EditNoteUseCase,
+    private val deleteNoteUseCase : DeleteNoteUseCase,
+    private val getNoteUseCase : GetNoteUseCase,
+    @Assisted("noteId") val noteId: Int) : ViewModel() {
 
-class EditNoteViewModel(private val noteId: Int, context: Context) : ViewModel() {
 
-    private val repository = NotesRepositoryImpl.getInstance(context)
-    private val editNoteUseCase = EditNoteUseCase(repository)
-    private val deleteNoteUseCase = DeleteNoteUseCase(repository)
-    private val getNoteUseCase = GetNoteUseCase(repository)
+
     private val _state = MutableStateFlow<EditNoteState>(EditNoteState.Initial)
     val state = _state.asStateFlow()
 
@@ -97,7 +104,13 @@ class EditNoteViewModel(private val noteId: Int, context: Context) : ViewModel()
             }
         }
     }
+    @AssistedFactory
+    interface Factory{
 
+        fun create(
+            @Assisted("noteId")
+            noteId: Int): EditNoteViewModel
+    }
 
 }
 

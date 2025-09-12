@@ -16,7 +16,10 @@ import com.example.notesapp.presentation.screens.editing.EditNoteScreen
 import com.example.notesapp.presentation.screens.navigation.NavGraph
 import com.example.notesapp.presentation.screens.notes.NotesScreen
 import com.example.notesapp.presentation.ui.theme.NotesAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
