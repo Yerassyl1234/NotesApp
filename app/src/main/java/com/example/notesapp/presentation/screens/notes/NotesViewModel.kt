@@ -2,35 +2,22 @@
 
 package com.example.notesapp.presentation.screens.notes
 
-import android.content.Context
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab.AlbumsTab.value
-import androidx.compose.material3.SearchBar
-import androidx.constraintlayout.helper.widget.Flow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesapp.data.NotesRepositoryImpl
-import com.example.notesapp.domain.AddNoteUseCase
-import com.example.notesapp.domain.DeleteNoteUseCase
-import com.example.notesapp.domain.EditNoteUseCase
 import com.example.notesapp.domain.GetAllNotesUseCase
-import com.example.notesapp.domain.GetNoteUseCase
-import com.example.notesapp.domain.Note
 import com.example.notesapp.domain.SearchNotesUseCase
 import com.example.notesapp.domain.SwitchPinnedStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class NotesViewModel @Inject constructor(
             private val getAllNotesUseCase :GetAllNotesUseCase,

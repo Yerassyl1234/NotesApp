@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">NotesApp</string>
+    <string name="search">Search…</string>
+    <string name="just_now">Just Now</string>
+    <string name="h_ago">%1$d h ago</string>
+    <string name="all_notes">All Notes</string>
 </resources>

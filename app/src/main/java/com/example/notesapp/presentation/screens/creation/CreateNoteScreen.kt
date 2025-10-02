@@ -2,7 +2,8 @@
 
 package com.example.notesapp.presentation.screens.creation
 
-import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,31 +24,38 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.notesapp.presentation.ui.theme.Content
+import com.example.notesapp.presentation.ui.theme.CustomIcons
 import com.example.notesapp.presentation.utils.DateFormatter
 
 @Composable
 fun CreateNoteScreen(
     modifier: Modifier = Modifier,
     viewModel: CreateNoteViewModel = hiltViewModel(),
-    onFinished:()->Unit
-
+    onFinished: () -> Unit
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
     val currentState = state.value
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let {
+                viewModel.processCommand(CreateNoteCommand.AddImage(it))
+            }
 
+        }
+    )
     when (currentState) {
         is CreateNoteState.Creation -> {
+
             Scaffold(
                 modifier = modifier,
                 topBar = {
@@ -74,6 +82,18 @@ fun CreateNoteScreen(
                                     },
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = "Back"
+                            )
+                        },
+                        actions = {
+                            Icon(
+                                modifier = Modifier
+                                    .padding(end = 24.dp)
+                                    .clickable {
+                                        imagePicker.launch("image/*")
+                                    },
+                                imageVector = CustomIcons.AddРhoto,
+                                contentDescription = "Add photo from gallery",
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     )
@@ -117,32 +137,20 @@ fun CreateNoteScreen(
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    TextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                            .weight(1f),
-                        value = currentState.content,
-                        onValueChange = {
-                            viewModel.processCommand(CreateNoteCommand.InputContent(it))
+                    Content(
+                        modifier = Modifier.weight(1f),
+                        content = currentState.content,
+                        onDeleteImageClick = {
+                            viewModel.processCommand(
+                                CreateNoteCommand.DeleteImage(it)
+                            )
                         },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-
-                            ),
-                        textStyle = TextStyle(
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        ),
-                        placeholder = {
-                            Text(
-                                text = "Content",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                        onTextChanged = { index, text ->
+                            viewModel.processCommand(
+                                CreateNoteCommand.InputContent(
+                                    content = text,
+                                    index = index
+                                )
                             )
                         }
                     )
@@ -176,7 +184,7 @@ fun CreateNoteScreen(
         }
 
         is CreateNoteState.Finished -> {
-            LaunchedEffect(key1=Unit) {
+            LaunchedEffect(key1 = Unit) {
                 onFinished()
             }
         }

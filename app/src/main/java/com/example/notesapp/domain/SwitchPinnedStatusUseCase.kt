@@ -1,6 +1,5 @@
 package com.example.notesapp.domain
 
-import android.adservices.adid.AdId
 import javax.inject.Inject
 
 class SwitchPinnedStatusUseCase @Inject constructor(
